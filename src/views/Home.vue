@@ -89,12 +89,24 @@ const { style: box8Style } = useDraggable(box8, {
         :marker-size="8"
       />
 
+      <VArrow
+        :start="box2"
+        :end="box8"
+        color="rebeccapurple"
+        stroke-style="dotted"
+        start-marker="circle"
+        end-marker="circle"
+        :marker-size="5"
+        :stroke-width="5"
+      />
+
       <!-- Example 3: Explicit Anchors & Offsets -->
       <VArrow
         :start="box5"
         :end="box6"
         color="darkorange"
         path="curve"
+        :curvature="0.2"
         :stroke-width="5"
         start-anchor="bottom"
         end-anchor="top"
@@ -105,6 +117,7 @@ const { style: box8Style } = useDraggable(box8, {
       <VArrow
         :start="box4"
         :end="box8"
+        :curvature="0.9"
         color="darkorange"
         path="curve"
         :stroke-width="5"
@@ -119,6 +132,7 @@ const { style: box8Style } = useDraggable(box8, {
         :end="box8"
         color="darkorange"
         path="curve"
+        :curvature="0.8"
         :stroke-width="5"
         start-anchor="bottom"
         end-anchor="top"
