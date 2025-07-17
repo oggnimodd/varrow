@@ -249,8 +249,6 @@ body {
 
 .arrow-label {
   background: red;
-  z-index: 1000;
-  position: relative;
   color: var(--text-color);
   padding: 4px 8px;
   border-radius: 5px;
@@ -258,5 +256,6 @@ body {
   font-weight: 600;
   border: 1px solid var(--border-color);
   white-space: nowrap;
+  transform: translateZ(0);
 }
 </style>

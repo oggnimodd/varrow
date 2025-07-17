@@ -231,119 +231,108 @@ const labelPosition = computed(() => {
 </script>
 
 <template>
-  <svg
-    v-if="pathGeometry"
-    :class="svgClass"
-    :style="{
-      position: 'absolute',
-      left: `${svgBox.x}px`,
-      top: `${svgBox.y}px`,
-      pointerEvents: 'none',
-      overflow: 'visible',
-      zIndex: -1,
-    }"
-    :width="svgBox.width"
-    :height="svgBox.height"
-  >
-    <defs>
-      <marker
-        :id="`arrow-marker-start-${instanceId}`"
-        viewBox="0 0 10 10"
-        refX="1"
-        refY="5"
-        :markerWidth="markerSize"
-        :markerHeight="markerSize"
-        :orient="markerOrients.start"
-      >
-        <path
-          d="M 8 2.5 L 2 5 L 8 7.5"
-          :stroke="color"
-          :stroke-width="markerStrokeWidth"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          fill="none"
-        />
-      </marker>
-      <marker
-        :id="`arrow-marker-end-${instanceId}`"
-        viewBox="0 0 10 10"
-        refX="9"
-        refY="5"
-        :markerWidth="markerSize"
-        :markerHeight="markerSize"
-        :orient="markerOrients.end"
-      >
-        <path
-          d="M 2 2.5 L 8 5 L 2 7.5"
-          :stroke="color"
-          :stroke-width="markerStrokeWidth"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          fill="none"
-        />
-      </marker>
-      <marker
-        :id="`circle-marker-start-${instanceId}`"
-        viewBox="0 0 10 10"
-        refX="5"
-        refY="5"
-        :markerWidth="markerSize"
-        :markerHeight="markerSize"
-      >
-        <circle cx="5" cy="5" r="4" :fill="color" />
-      </marker>
-      <marker
-        :id="`circle-marker-end-${instanceId}`"
-        viewBox="0 0 10 10"
-        refX="5"
-        refY="5"
-        :markerWidth="markerSize"
-        :markerHeight="markerSize"
-      >
-        <circle cx="5" cy="5" r="4" :fill="color" />
-      </marker>
-    </defs>
-
-    <path
-      :d="pathD"
-      :stroke="color"
-      :stroke-width="strokeWidth"
-      stroke-linecap="round"
-      fill="none"
-      :transform="`translate(${-svgBox.x}, ${-svgBox.y})`"
-      :marker-start="
-        startMarker
-          ? `url(#${startMarker}-marker-start-${instanceId})`
-          : undefined
-      "
-      :marker-end="
-        endMarker ? `url(#${endMarker}-marker-end-${instanceId})` : undefined
-      "
-    />
-
-    <g
-      v-if="slots.default && labelPosition"
-      :transform="`translate(${-svgBox.x}, ${-svgBox.y})`"
+  <template v-if="pathGeometry">
+    <svg
+      :class="svgClass"
+      :style="{
+        position: 'absolute',
+        left: `${svgBox.x}px`,
+        top: `${svgBox.y}px`,
+        pointerEvents: 'none',
+        overflow: 'visible',
+      }"
+      :width="svgBox.width"
+      :height="svgBox.height"
     >
-      <foreignObject
-        :x="labelPosition.x - 75"
-        :y="labelPosition.y - 25"
-        width="150"
-        height="50"
-        style="pointer-events: all; text-align: center"
-      >
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            width: 100%;
-          "
+      <defs>
+        <marker
+          :id="`arrow-marker-start-${instanceId}`"
+          viewBox="0 0 10 10"
+          refX="1"
+          refY="5"
+          :markerWidth="markerSize"
+          :markerHeight="markerSize"
+          :orient="markerOrients.start"
         >
-          <slot />
-        </div>
-      </foreignObject>
-    </g>
-  </svg>
+          <path
+            d="M 8 2.5 L 2 5 L 8 7.5"
+            :stroke="color"
+            :stroke-width="markerStrokeWidth"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"
+          />
+        </marker>
+        <marker
+          :id="`arrow-marker-end-${instanceId}`"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          :markerWidth="markerSize"
+          :markerHeight="markerSize"
+          :orient="markerOrients.end"
+        >
+          <path
+            d="M 2 2.5 L 8 5 L 2 7.5"
+            :stroke="color"
+            :stroke-width="markerStrokeWidth"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"
+          />
+        </marker>
+        <marker
+          :id="`circle-marker-start-${instanceId}`"
+          viewBox="0 0 10 10"
+          refX="5"
+          refY="5"
+          :markerWidth="markerSize"
+          :markerHeight="markerSize"
+        >
+          <circle cx="5" cy="5" r="4" :fill="color" />
+        </marker>
+        <marker
+          :id="`circle-marker-end-${instanceId}`"
+          viewBox="0 0 10 10"
+          refX="5"
+          refY="5"
+          :markerWidth="markerSize"
+          :markerHeight="markerSize"
+        >
+          <circle cx="5" cy="5" r="4" :fill="color" />
+        </marker>
+      </defs>
+
+      <path
+        :d="pathD"
+        :stroke="color"
+        :stroke-width="strokeWidth"
+        stroke-linecap="round"
+        fill="none"
+        :transform="`translate(${-svgBox.x}, ${-svgBox.y})`"
+        :marker-start="
+          startMarker
+            ? `url(#${startMarker}-marker-start-${instanceId})`
+            : undefined
+        "
+        :marker-end="
+          endMarker ? `url(#${endMarker}-marker-end-${instanceId})` : undefined
+        "
+      />
+    </svg>
+
+    <div
+      v-if="slots.default && labelPosition"
+      :style="{
+        position: 'absolute',
+        left: `${labelPosition.x}px`,
+        top: `${labelPosition.y}px`,
+        transform: 'translate(-50%, -50%)',
+        pointerEvents: 'all',
+        zIndex: 9,
+      }"
+    >
+      <slot />
+    </div>
+  </template>
 </template>
