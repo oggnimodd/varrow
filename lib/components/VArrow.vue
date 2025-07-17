@@ -202,15 +202,18 @@ const pathD = computed(() => {
   return `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
 });
 
-const startMarkerOrient = computed(() => {
-  if (!pathGeometry.value) return "auto";
-  const { startVec } = pathGeometry.value;
-  return `${Math.atan2(startVec.y, startVec.x) * (180 / Math.PI)}`;
-});
-const endMarkerOrient = computed(() => {
-  if (!pathGeometry.value) return "auto";
-  const { endVec } = pathGeometry.value;
-  return `${Math.atan2(-endVec.y, -endVec.x) * (180 / Math.PI)}`;
+const markerOrients = computed(() => {
+  if (!pathGeometry.value) return { start: "auto", end: "auto" };
+  const { p1, p2, startVec, endVec } = pathGeometry.value;
+
+  if (props.path === "curve") {
+    const startAngle = Math.atan2(startVec.y, startVec.x) * (180 / Math.PI);
+    const endAngle = Math.atan2(-endVec.y, -endVec.x) * (180 / Math.PI);
+    return { start: `${startAngle}`, end: `${endAngle}` };
+  } else {
+    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x) * (180 / Math.PI);
+    return { start: `${angle}`, end: `${angle}` };
+  }
 });
 
 const labelPosition = computed(() => {
@@ -250,7 +253,7 @@ const labelPosition = computed(() => {
         refY="5"
         :markerWidth="markerSize"
         :markerHeight="markerSize"
-        :orient="startMarkerOrient"
+        :orient="markerOrients.start"
       >
         <path
           d="M 8 2.5 L 2 5 L 8 7.5"
@@ -268,7 +271,7 @@ const labelPosition = computed(() => {
         refY="5"
         :markerWidth="markerSize"
         :markerHeight="markerSize"
-        :orient="endMarkerOrient"
+        :orient="markerOrients.end"
       >
         <path
           d="M 2 2.5 L 8 5 L 2 7.5"
