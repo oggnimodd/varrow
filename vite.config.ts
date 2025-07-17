@@ -19,6 +19,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      varrow: fileURLToPath(new URL("./lib/index.ts", import.meta.url)),
     },
   },
 });
