@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, useSlots } from "vue";
 
 type Point = { x: number; y: number };
 type Rect = { x: number; y: number; width: number; height: number };
@@ -13,6 +13,7 @@ export interface VArrowProps {
   path?: PathStyle;
   color?: string;
   strokeWidth?: number;
+  markerStrokeWidth?: number;
   startMarker?: string | null;
   endMarker?: string | null;
   markerSize?: number;
@@ -28,9 +29,10 @@ const props = withDefaults(defineProps<VArrowProps>(), {
   path: "straight",
   color: "#2c3e50",
   strokeWidth: 2,
+  markerStrokeWidth: 2,
   startMarker: null,
   endMarker: "arrow",
-  markerSize: 10,
+  markerSize: 5,
   startAnchor: "auto",
   endAnchor: "auto",
   startOffset: () => ({ x: 0, y: 0 }),
@@ -43,6 +45,7 @@ const instanceId = Math.random().toString(36).substring(7);
 const startRect = ref<Rect | null>(null);
 const endRect = ref<Rect | null>(null);
 let animationFrameId: number | null = null;
+const slots = useSlots();
 
 onMounted(() => {
   updatePositions();
@@ -104,7 +107,6 @@ const pathGeometry = computed(() => {
         return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
     }
   };
-
   const getAutoAnchors = (r1: Rect, r2: Rect): [Anchor, Anchor] => {
     const c1 = getAnchorPoint(r1, "center");
     const c2 = getAnchorPoint(r2, "center");
@@ -117,7 +119,6 @@ const pathGeometry = computed(() => {
     };
     return [getAnchorFromAngle(angle), getAnchorFromAngle((angle + 180) % 360)];
   };
-
   let startAnchor = props.startAnchor;
   let endAnchor = props.endAnchor;
   if (startAnchor === "auto" || endAnchor === "auto") {
@@ -125,7 +126,6 @@ const pathGeometry = computed(() => {
     if (startAnchor === "auto") startAnchor = autoStart;
     if (endAnchor === "auto") endAnchor = autoEnd;
   }
-
   const p1 = getAnchorPoint(startPos.value, startAnchor);
   const p2 = getAnchorPoint(endPos.value, endAnchor);
   p1.x += props.startOffset.x;
@@ -140,7 +140,6 @@ const pathGeometry = computed(() => {
     if (anchor === "right") return { x: 1, y: 0 };
     return { x: 0, y: 0 };
   };
-
   let startVec = getBaseAnchorVec(startAnchor);
   let endVec = getBaseAnchorVec(endAnchor);
 
@@ -148,37 +147,26 @@ const pathGeometry = computed(() => {
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
     const angleFactor = 0.75;
-
-    if (startAnchor === "top" || startAnchor === "bottom") {
+    if (startAnchor === "top" || startAnchor === "bottom")
       startVec.x += (dx / (Math.abs(dy) + 1)) * angleFactor;
-    } else if (startAnchor === "left" || startAnchor === "right") {
-      startVec.y += (dy / (Math.abs(dx) + 1)) * angleFactor;
-    }
-
-    if (endAnchor === "top" || endAnchor === "bottom") {
+    else startVec.y += (dy / (Math.abs(dx) + 1)) * angleFactor;
+    if (endAnchor === "top" || endAnchor === "bottom")
       endVec.x -= (dx / (Math.abs(dy) + 1)) * angleFactor;
-    } else if (endAnchor === "left" || endAnchor === "right") {
-      endVec.y -= (dy / (Math.abs(dx) + 1)) * angleFactor;
-    }
-
-    const magStart = Math.sqrt(
-      startVec.x * startVec.x + startVec.y * startVec.y
-    );
-    if (magStart > 0) {
-      startVec.x /= magStart;
-      startVec.y /= magStart;
-    }
-    const magEnd = Math.sqrt(endVec.x * endVec.x + endVec.y * endVec.y);
-    if (magEnd > 0) {
-      endVec.x /= magEnd;
-      endVec.y /= magEnd;
-    }
+    else endVec.y -= (dy / (Math.abs(dx) + 1)) * angleFactor;
   }
 
-  const dx = p2.x - p1.x;
-  const dy = p2.y - p1.y;
-  const dist = Math.sqrt(dx * dx + dy * dy) * props.curvature;
-
+  const magStart = Math.sqrt(startVec.x * startVec.x + startVec.y * startVec.y);
+  if (magStart > 0) {
+    startVec.x /= magStart;
+    startVec.y /= magStart;
+  }
+  const magEnd = Math.sqrt(endVec.x * endVec.x + endVec.y * endVec.y);
+  if (magEnd > 0) {
+    endVec.x /= magEnd;
+    endVec.y /= magEnd;
+  }
+  const dist =
+    Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2) * props.curvature;
   const cp1 = { x: p1.x + startVec.x * dist, y: p1.y + startVec.y * dist };
   const cp2 = { x: p2.x + endVec.x * dist, y: p2.y + endVec.y * dist };
 
@@ -215,17 +203,27 @@ const pathD = computed(() => {
 });
 
 const startMarkerOrient = computed(() => {
-  if (props.path !== "curve" || !pathGeometry.value)
-    return "auto-start-reverse";
+  if (!pathGeometry.value) return "auto";
   const { startVec } = pathGeometry.value;
   return `${Math.atan2(startVec.y, startVec.x) * (180 / Math.PI)}`;
 });
-
 const endMarkerOrient = computed(() => {
-  if (props.path !== "curve" || !pathGeometry.value)
-    return "auto-start-reverse";
+  if (!pathGeometry.value) return "auto";
   const { endVec } = pathGeometry.value;
   return `${Math.atan2(-endVec.y, -endVec.x) * (180 / Math.PI)}`;
+});
+
+const labelPosition = computed(() => {
+  if (!pathGeometry.value) return null;
+  const { p1, p2, cp1, cp2 } = pathGeometry.value;
+
+  if (props.path === "curve") {
+    const x = 0.125 * p1.x + 0.375 * cp1.x + 0.375 * cp2.x + 0.125 * p2.x;
+    const y = 0.125 * p1.y + 0.375 * cp1.y + 0.375 * cp2.y + 0.125 * p2.y;
+    return { x, y };
+  } else {
+    return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+  }
 });
 </script>
 
@@ -248,26 +246,39 @@ const endMarkerOrient = computed(() => {
       <marker
         :id="`arrow-marker-start-${instanceId}`"
         viewBox="0 0 10 10"
-        refX="8"
+        refX="1"
         refY="5"
         :markerWidth="markerSize"
         :markerHeight="markerSize"
         :orient="startMarkerOrient"
       >
-        <path d="M 0 2.5 L 8 5 L 0 7.5 z" :fill="color" />
+        <path
+          d="M 8 2.5 L 2 5 L 8 7.5"
+          :stroke="color"
+          :stroke-width="markerStrokeWidth"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
       </marker>
       <marker
         :id="`arrow-marker-end-${instanceId}`"
         viewBox="0 0 10 10"
-        refX="8"
+        refX="9"
         refY="5"
         :markerWidth="markerSize"
         :markerHeight="markerSize"
         :orient="endMarkerOrient"
       >
-        <path d="M 0 2.5 L 8 5 L 0 7.5 z" :fill="color" />
+        <path
+          d="M 2 2.5 L 8 5 L 2 7.5"
+          :stroke="color"
+          :stroke-width="markerStrokeWidth"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
       </marker>
-
       <marker
         :id="`circle-marker-start-${instanceId}`"
         viewBox="0 0 10 10"
@@ -289,6 +300,7 @@ const endMarkerOrient = computed(() => {
         <circle cx="5" cy="5" r="4" :fill="color" />
       </marker>
     </defs>
+
     <path
       :d="pathD"
       :stroke="color"
@@ -305,5 +317,30 @@ const endMarkerOrient = computed(() => {
         endMarker ? `url(#${endMarker}-marker-end-${instanceId})` : undefined
       "
     />
+
+    <g
+      v-if="slots.default && labelPosition"
+      :transform="`translate(${-svgBox.x}, ${-svgBox.y})`"
+    >
+      <foreignObject
+        :x="labelPosition.x - 75"
+        :y="labelPosition.y - 25"
+        width="150"
+        height="50"
+        style="pointer-events: all; text-align: center"
+      >
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+          "
+        >
+          <slot />
+        </div>
+      </foreignObject>
+    </g>
   </svg>
 </template>

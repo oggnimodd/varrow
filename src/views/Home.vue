@@ -3,8 +3,6 @@ import { ref } from "vue";
 import { useDraggable } from "@vueuse/core";
 import { VArrow } from "varrow";
 
-// --- Create a ref and a draggable instance for EVERY box ---
-
 const box1 = ref<HTMLElement | null>(null);
 const { style: box1Style } = useDraggable(box1, {
   initialValue: { x: 50, y: 150 },
@@ -12,7 +10,7 @@ const { style: box1Style } = useDraggable(box1, {
 
 const box2 = ref<HTMLElement | null>(null);
 const { style: box2Style } = useDraggable(box2, {
-  initialValue: { x: 300, y: 250 },
+  initialValue: { x: 400, y: 250 },
 });
 
 const box3 = ref<HTMLElement | null>(null);
@@ -53,7 +51,6 @@ const { style: box8Style } = useDraggable(box8, {
       <p>All boxes are draggable. Move them around to see the arrows react!</p>
     </header>
 
-    <!-- The Draggable Boxes -->
     <div ref="box1" class="box" :style="box1Style">Box 1</div>
     <div ref="box2" class="box" :style="box2Style">Box 2</div>
     <div ref="box3" class="box" :style="box3Style">Box 3</div>
@@ -63,55 +60,38 @@ const { style: box8Style } = useDraggable(box8, {
     <div ref="box7" class="box" :style="box7Style">Box 7</div>
     <div ref="box8" class="box" :style="box8Style">Box 8</div>
 
-    <!-- The VArrow Components -->
     <template
       v-if="box1 && box2 && box3 && box4 && box5 && box6 && box7 && box8"
     >
-      <!-- Example 1: Straight vs. Curved Path -->
-      <VArrow :start="box1" :end="box2" />
-      <VArrow :start="box2" :end="box1" path="curve" color="#3b82f6" />
-
-      <!-- Example 2: Styled & Dashed/Dotted Lines -->
       <VArrow
-        :start="box3"
-        :end="box4"
-        color="crimson"
-        :stroke-width="4"
-        stroke-style="dashed"
-      />
+        :start="box1"
+        :end="box2"
+        path="curve"
+        color="#3b82f6"
+        :stroke-width="3"
+      >
+        <div class="arrow-label">This is a label!</div>
+      </VArrow>
+      <VArrow :start="box2" :end="box1" path="curve" />
+
+      <VArrow :start="box3" :end="box4" color="crimson" :stroke-width="4" />
       <VArrow
         :start="box4"
-        :end="box3"
+        :end="box2"
         color="rebeccapurple"
-        stroke-style="dotted"
+        path="curve"
         start-marker="circle"
-        end-marker="circle"
-        :marker-size="8"
+        :stroke-width="4"
       />
 
-      <VArrow
-        :start="box2"
-        :end="box8"
-        color="rebeccapurple"
-        stroke-style="dotted"
-        start-marker="circle"
-        end-marker="circle"
-        :marker-size="5"
-        :stroke-width="5"
-      />
-
-      <!-- Example 3: Explicit Anchors & Offsets -->
       <VArrow
         :start="box5"
         :end="box6"
         color="darkorange"
         path="curve"
-        :curvature="0.2"
         :stroke-width="5"
         start-anchor="bottom"
         end-anchor="top"
-        :start-offset="{ x: -20, y: 10 }"
-        :end-offset="{ x: 20, y: -10 }"
       />
 
       <VArrow
@@ -123,8 +103,6 @@ const { style: box8Style } = useDraggable(box8, {
         :stroke-width="5"
         start-anchor="bottom"
         end-anchor="top"
-        :start-offset="{ x: -20, y: 10 }"
-        :end-offset="{ x: 20, y: -10 }"
       />
 
       <VArrow
@@ -132,15 +110,11 @@ const { style: box8Style } = useDraggable(box8, {
         :end="box8"
         color="darkorange"
         path="curve"
-        :curvature="0.8"
         :stroke-width="5"
-        start-anchor="bottom"
-        end-anchor="top"
-        :start-offset="{ x: -20, y: 10 }"
-        :end-offset="{ x: 20, y: -10 }"
+        start-anchor="right"
+        end-anchor="right"
       />
 
-      <!-- Example 4: Mixed Targets (Element to Coordinate) -->
       <VArrow
         :start="box7"
         :end="{ x: 600, y: 750 }"
@@ -156,7 +130,6 @@ const { style: box8Style } = useDraggable(box8, {
       />
     </template>
 
-    <!-- On-screen labels for clarity -->
     <div class="pod-label" style="top: 100px; left: 150px">
       <h3>1. Basic Paths</h3>
       <p>Straight vs. Curved</p>
@@ -229,7 +202,7 @@ body {
 }
 
 .box {
-  position: fixed; /* useDraggable works best with fixed positioning */
+  position: fixed;
   width: 180px;
   height: 90px;
   border: 2px solid var(--box-border);
@@ -272,5 +245,18 @@ body {
   margin: 0;
   font-size: 14px;
   color: #64748b;
+}
+
+.arrow-label {
+  background: red;
+  z-index: 1000;
+  position: relative;
+  color: var(--text-color);
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 </style>
