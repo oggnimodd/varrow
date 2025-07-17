@@ -6,11 +6,13 @@ type Rect = { x: number; y: number; width: number; height: number };
 export type VArrowTarget = HTMLElement | Point;
 type Anchor = "top" | "bottom" | "left" | "right" | "center" | "auto";
 type PathStyle = "straight" | "curve";
+type LineStyle = "solid" | "dashed" | "dotted";
 
 export interface VArrowProps {
   start: VArrowTarget;
   end: VArrowTarget;
   path?: PathStyle;
+  lineStyle?: LineStyle;
   color?: string;
   strokeWidth?: number;
   markerStrokeWidth?: number;
@@ -27,6 +29,7 @@ export interface VArrowProps {
 
 const props = withDefaults(defineProps<VArrowProps>(), {
   path: "straight",
+  lineStyle: "solid",
   color: "#2c3e50",
   strokeWidth: 2,
   markerStrokeWidth: 2,
@@ -228,6 +231,16 @@ const labelPosition = computed(() => {
     return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
   }
 });
+
+const strokeDashArray = computed(() => {
+  if (props.lineStyle === "dashed") {
+    return `${props.strokeWidth * 3} ${props.strokeWidth * 2}`;
+  }
+  if (props.lineStyle === "dotted") {
+    return `1 ${props.strokeWidth * 2}`;
+  }
+  return "none";
+});
 </script>
 
 <template>
@@ -318,6 +331,7 @@ const labelPosition = computed(() => {
         :marker-end="
           endMarker ? `url(#${endMarker}-marker-end-${instanceId})` : undefined
         "
+        :stroke-dasharray="strokeDashArray"
       />
     </svg>
 
@@ -329,7 +343,7 @@ const labelPosition = computed(() => {
         top: `${labelPosition.y}px`,
         transform: 'translate(-50%, -50%)',
         pointerEvents: 'all',
-        zIndex: 9,
+        zIndex: 10,
       }"
     >
       <slot />

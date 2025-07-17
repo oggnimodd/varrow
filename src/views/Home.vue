@@ -74,7 +74,13 @@ const { style: box8Style } = useDraggable(box8, {
       </VArrow>
       <VArrow :start="box2" :end="box1" path="curve" />
 
-      <VArrow :start="box3" :end="box4" color="crimson" :stroke-width="4" />
+      <VArrow
+        :start="box3"
+        :end="box4"
+        color="crimson"
+        :stroke-width="4"
+        line-style="dashed"
+      />
       <VArrow
         :start="box4"
         :end="box2"
@@ -82,6 +88,7 @@ const { style: box8Style } = useDraggable(box8, {
         path="curve"
         start-marker="circle"
         :stroke-width="4"
+        line-style="dotted"
       />
 
       <VArrow
@@ -93,7 +100,6 @@ const { style: box8Style } = useDraggable(box8, {
         start-anchor="bottom"
         end-anchor="top"
       />
-
       <VArrow
         :start="box4"
         :end="box8"
@@ -104,7 +110,6 @@ const { style: box8Style } = useDraggable(box8, {
         start-anchor="bottom"
         end-anchor="top"
       />
-
       <VArrow
         :start="box5"
         :end="box8"
@@ -256,6 +261,5 @@ body {
   font-weight: 600;
   border: 1px solid var(--border-color);
   white-space: nowrap;
-  transform: translateZ(0);
 }
 </style>
