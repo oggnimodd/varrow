@@ -8,7 +8,7 @@ const config = {
   useTabs: false,
   semi: true,
   singleQuote: false,
-  plugins: ["prettier-plugin-tailwindcss"],
+  plugins: ["prettier-plugin-tailwindcss", "@prettier/plugin-oxc"],
 };
 
 export default config;
